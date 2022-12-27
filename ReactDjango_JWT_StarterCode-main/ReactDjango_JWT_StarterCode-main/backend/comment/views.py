@@ -8,17 +8,17 @@ from .serializers import CommentSerializer
 # Create your views here.
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_all_comments(request):
-    comments = Comment.objects.all()
+def get_video_comments(request, video_id):
+    comments = Comment.objects.filter(video_id=video_id)
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data)
 
 
 
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def user_comments(request):
+def post_comments(request):
     print(
         'User ', f'{request.user.id} {request.user.email} {request.user.username}')
     if request.method == 'POST':
@@ -27,9 +27,6 @@ def user_comments(request):
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'GET':
-        cars = Comment.objects.filter(user_id=request.user.id)
-        serializer = CommentSerializer(cars, many=True)
-        return Response(serializer.data)
+    
 
 
